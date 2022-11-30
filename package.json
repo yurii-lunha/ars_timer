@@ -1,0 +1,28 @@
+{
+  "name": "com.ylunha.ars-timer",
+  "version": "1.0.0",
+  "displayName": "Ars Timer Component",
+  "description": "Real time timer",
+  "unity": "2020.1",
+  "dependencies": {},
+  "keywords": [
+    "timer",
+    "time",
+    "clock",
+    "realtime"
+  ],
+  "author": {
+    "name": "Yurii Lunha",
+    "email": "iurylunga@gmail.com",
+    "url": "https://github.com/YLUNHA"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YLUNHA/ars_timer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/YLUNHA/ars_timer/issues",
+    "email": "iurylunga@gmail.com"
+  },
+  "homepage": "https://github.com/YLUNHA"
+}
