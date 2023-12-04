@@ -20,6 +20,7 @@ namespace Ars
 
         [Header("Core"), SerializeField, Tooltip("Save time and continue after game restart")]
         bool _realtime;
+
         [SerializeField] int _uniqIndex = -1;
 
         [Header("Behaviour"), SerializeField] TimerType _timerType;
@@ -47,6 +48,32 @@ namespace Ars
 
         TimerData _timerData;
         bool _updateTimer;
+
+        Color TimerTextColor
+        {
+            get => _timerText ? _timerText.color : _timerTmpText.color;
+            set
+            {
+                if (_timerTmpText)
+                    _timerTmpText.color = value;
+
+                if (_timerText)
+                    _timerText.color = value;
+            }
+        }
+
+        string TimerTextValue
+        {
+            get => _timerText ? _timerText.text : _timerTmpText.text;
+            set
+            {
+                if (_timerTmpText)
+                    _timerTmpText.text = value;
+
+                if (_timerText)
+                    _timerText.text = value;
+            }
+        }
 
         public int TimerId
         {
@@ -270,7 +297,7 @@ namespace Ars
         {
             _updateTimer = false;
             _startTime = _startTime.AddSeconds(freezeDuration);
-            _timerText.color = _freezeColor;
+            TimerTextColor = _freezeColor;
 
             Invoke(nameof(ResumeTimer), freezeDuration);
         }
@@ -339,15 +366,15 @@ namespace Ars
 
                 if (_timerType == TimerType.HOURS)
                 {
-                    _timerText.text = $"{FormatTime(hours)}:{FormatTime(minutes)}:{FormatTime(seconds)}";
+                    TimerTextValue = $"{FormatTime(hours)}:{FormatTime(minutes)}:{FormatTime(seconds)}";
                 }
                 else if (_timerType == TimerType.MINUTES)
                 {
-                    _timerText.text = $"{FormatTime(minutes)}:{FormatTime(seconds)}";
+                    TimerTextValue = $"{FormatTime(minutes)}:{FormatTime(seconds)}";
                 }
                 else
                 {
-                    _timerText.text = $"{FormatTime(seconds)}";
+                    TimerTextValue = $"{FormatTime(seconds)}";
                 }
             }
             else
@@ -390,15 +417,15 @@ namespace Ars
 
             if (_timerType == TimerType.HOURS)
             {
-                _timerText.text = $"{FormatTime(hours)}:{FormatTime(minutes)}:{FormatTime(seconds)}";
+                TimerTextValue = $"{FormatTime(hours)}:{FormatTime(minutes)}:{FormatTime(seconds)}";
             }
             else if (_timerType == TimerType.MINUTES)
             {
-                _timerText.text = $"{FormatTime(minutes)}:{FormatTime(seconds)}";
+                TimerTextValue = $"{FormatTime(minutes)}:{FormatTime(seconds)}";
             }
             else
             {
-                _timerText.text = $"{FormatTime(seconds)}";
+                TimerTextValue = $"{FormatTime(seconds)}";
             }
 
             UpdateTextStyle();
@@ -422,15 +449,15 @@ namespace Ars
 
             if (_timerType == TimerType.HOURS)
             {
-                _timerText.text = $"{FormatTime(hours)}:{FormatTime(minutes)}:{FormatTime(seconds)}";
+                TimerTextValue = $"{FormatTime(hours)}:{FormatTime(minutes)}:{FormatTime(seconds)}";
             }
             else if (_timerType == TimerType.MINUTES)
             {
-                _timerText.text = $"{FormatTime(minutes)}:{FormatTime(seconds)}";
+                TimerTextValue = $"{FormatTime(minutes)}:{FormatTime(seconds)}";
             }
             else
             {
-                _timerText.text = $"{FormatTime(seconds)}";
+                TimerTextValue = $"{FormatTime(seconds)}";
             }
 
             UpdateTextStyle();
@@ -442,7 +469,7 @@ namespace Ars
 
         void ResumeTimer()
         {
-            _timerText.color = _defaultColor;
+            TimerTextColor = _defaultColor;
             _updateTimer = true;
         }
 
@@ -455,7 +482,7 @@ namespace Ars
 
             if (_countdownSeconds <= SecondsToLow && _countdownHours <= 0 && _countdownMinutes <= 0)
             {
-                _timerText.color = _lowTimeColor;
+                TimerTextColor = _lowTimeColor;
 
                 LowTime?.Invoke((int)_countdownSeconds);
             }
