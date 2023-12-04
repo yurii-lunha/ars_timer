@@ -2,6 +2,10 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
+#if TEXT_MESH_PRO
+using TMPro;
+#endif
+
 namespace Ars
 {
     public class ArsTimerView : MonoBehaviour
@@ -9,80 +13,60 @@ namespace Ars
         [Serializable]
         public enum TimerType
         {
-            Hours,
-            Minutes,
-            Seconds
+            HOURS,
+            MINUTES,
+            SECONDS
         }
 
         [Header("Core"), SerializeField, Tooltip("Save time and continue after game restart")]
-        private bool realtime;
+        bool _realtime;
+        [SerializeField] int _uniqIndex = -1;
 
-        [SerializeField]
-        private int uniqIndex = -1;
+        [Header("Behaviour"), SerializeField] TimerType _timerType;
+        [SerializeField] bool _useTimeScale;
+        [SerializeField] bool _autoPlay;
+        [SerializeField] Text _timerText;
 
-        [Header("Behaviour"), SerializeField]
-        private TimerType timerType;
+#if TEXT_MESH_PRO
+        [SerializeField] TMP_Text _timerTmpText;
+#endif
 
-        [SerializeField]
-        private bool useTimeScale;
+        [SerializeField] double _countdownHours;
+        [SerializeField] double _countdownMinutes;
+        [SerializeField] double _countdownSeconds;
+        [Header("View"), SerializeField] Color _defaultColor;
+        [SerializeField] Color _freezeColor;
+        [SerializeField] bool _useLowStyle;
+        [SerializeField] int _secondsToLow = 5;
+        [SerializeField] Color _lowTimeColor = new Color(0.88f, 0f, 0.11f);
 
-        [SerializeField]
-        private bool autoPlay;
+        float _deltaTime;
+        bool _isTiming = false;
+        DateTime _startTime;
+        bool _timeOut;
 
-        [SerializeField]
-        private Text timerText;
-
-        [SerializeField]
-        private double countdownHours;
-
-        [SerializeField]
-        private double countdownMinutes;
-
-        [SerializeField]
-        private double countdownSeconds;
-
-        [Header("View"), SerializeField]
-        private Color defaultColor;
-
-        [SerializeField]
-        private Color freezeColor;
-
-        [SerializeField]
-        private bool useLowStyle;
-
-        [SerializeField]
-        private int secondsToLow = 5;
-
-        [SerializeField]
-        private Color lowTimeColor = new Color(0.88f, 0f, 0.11f);
-
-        private float _deltaTime;
-        private bool _isTiming = false;
-        private DateTime _startTime;
-        private bool _timeOut;
-
-        private TimerData _timerData;
-        private bool _updateTimer;
+        TimerData _timerData;
+        bool _updateTimer;
 
         public int TimerId
         {
             get =>
-                uniqIndex;
+                _uniqIndex;
         }
 
         public Text TimerText
         {
             get =>
-                timerText;
+                _timerText;
         }
 
         public double CountdownMinutes
         {
             get =>
-                countdownMinutes;
+                _countdownMinutes;
             set
             {
-                countdownMinutes = value;
+                _countdownMinutes = value;
 
                 UpdateTimerText();
             }
@@ -91,10 +75,10 @@ namespace Ars
         public double CountdownSeconds
         {
             get =>
-                countdownSeconds;
+                _countdownSeconds;
             set
             {
-                countdownSeconds = value;
+                _countdownSeconds = value;
                 UpdateTimerText();
             }
         }
@@ -102,10 +86,10 @@ namespace Ars
         public double CountdownHours
         {
             get =>
-                countdownHours;
+                _countdownHours;
             set
             {
-                countdownHours = value;
+                _countdownHours = value;
                 UpdateTimerText();
             }
         }
@@ -113,28 +97,28 @@ namespace Ars
         public int SecondsToLow
         {
             get =>
-                secondsToLow;
+                _secondsToLow;
             set =>
-                secondsToLow = value;
+                _secondsToLow = value;
         }
 
-        private void Awake()
+        void Awake()
         {
             ArsTimerUtils.OnTimerViewInit(this);
             InitTimerData();
         }
 
-        private void Start()
+        void Start()
         {
-            if (autoPlay)
+            if (_autoPlay)
             {
                 PlayTimer();
             }
         }
 
-        private void Update()
+        void Update()
         {
-            if (!useTimeScale)
+            if (!_useTimeScale)
             {
                 return;
             }
@@ -152,9 +136,9 @@ namespace Ars
             }
         }
 
-        private void FixedUpdate()
+        void FixedUpdate()
         {
-            if (useTimeScale)
+            if (_useTimeScale)
             {
                 return;
             }
@@ -172,27 +156,27 @@ namespace Ars
             }
         }
 
-        private void OnDisable()
+        void OnDisable()
         {
-            if (realtime)
+            if (_realtime)
             {
                 ArsTimerUtils.SetValue(_timerData);
             }
         }
 
-        private void InitTimerData()
+        void InitTimerData()
         {
-            if (!realtime)
+            if (!_realtime)
             {
                 return;
             }
 
-            _timerData = ArsTimerUtils.GetValue(uniqIndex);
+            _timerData = ArsTimerUtils.GetValue(_uniqIndex);
 
             if (_timerData == null)
             {
                 _timerData = new TimerData();
-                _timerData.timerIndex = uniqIndex;
+                _timerData.timerIndex = _uniqIndex;
             }
         }
 
@@ -209,9 +193,9 @@ namespace Ars
         public event Action LocalTimeOut;
         public event Action<int> LowTime;
 
-        private void UpdateRealtimeSeconds()
+        void UpdateRealtimeSeconds()
         {
-            if (!realtime)
+            if (!_realtime)
             {
                 return;
             }
@@ -222,7 +206,7 @@ namespace Ars
         [ContextMenu("Reset timer")]
         public void DebugResetTimer()
         {
-            if (realtime)
+            if (_realtime)
             {
                 _timerData.dataIsReady = true;
 
@@ -245,9 +229,9 @@ namespace Ars
 
         public bool IsTimerOut()
         {
-            var targetTime = _startTime.AddHours(countdownHours);
-            targetTime = targetTime.AddMinutes(countdownMinutes);
-            targetTime = targetTime.AddSeconds(countdownSeconds);
+            var targetTime = _startTime.AddHours(_countdownHours);
+            targetTime = targetTime.AddMinutes(_countdownMinutes);
+            targetTime = targetTime.AddSeconds(_countdownSeconds);
 
             var now = DateTime.Now.AddSeconds(1d);
             var hours = targetTime.Subtract(now).Hours;
@@ -286,7 +270,7 @@ namespace Ars
         {
             _updateTimer = false;
             _startTime = _startTime.AddSeconds(freezeDuration);
-            timerText.color = freezeColor;
+            _timerText.color = _freezeColor;
 
             Invoke(nameof(ResumeTimer), freezeDuration);
         }
@@ -298,7 +282,7 @@ namespace Ars
         {
             _startTime = DateTime.Now.AddSeconds(1d);
 
-            if (realtime)
+            if (_realtime)
             {
                 _timerData.SetStartDateTime(_startTime);
             }
@@ -320,7 +304,7 @@ namespace Ars
                 return;
             }
 
-            if (realtime)
+            if (_realtime)
             {
                 InitTimerData();
 
@@ -347,28 +331,28 @@ namespace Ars
 
         public void UpdateTimerText()
         {
-            if (useTimeScale)
+            if (_useTimeScale)
             {
-                var hours = (int)countdownHours;
-                var minutes = (int)countdownMinutes;
-                var seconds = (int)countdownSeconds;
+                var hours = (int)_countdownHours;
+                var minutes = (int)_countdownMinutes;
+                var seconds = (int)_countdownSeconds;
 
-                if (timerType == TimerType.Hours)
+                if (_timerType == TimerType.HOURS)
                 {
-                    timerText.text = $"{FormatTime(hours)}:{FormatTime(minutes)}:{FormatTime(seconds)}";
+                    _timerText.text = $"{FormatTime(hours)}:{FormatTime(minutes)}:{FormatTime(seconds)}";
                 }
-                else if (timerType == TimerType.Minutes)
+                else if (_timerType == TimerType.MINUTES)
                 {
-                    timerText.text = $"{FormatTime(minutes)}:{FormatTime(seconds)}";
+                    _timerText.text = $"{FormatTime(minutes)}:{FormatTime(seconds)}";
                 }
                 else
                 {
-                    timerText.text = $"{FormatTime(seconds)}";
+                    _timerText.text = $"{FormatTime(seconds)}";
                 }
             }
             else
             {
-                _startTime = realtime
+                _startTime = _realtime
                     ? _timerData.GetStartDateTime().AddSeconds(1.1d)
                     : DateTime.Now.AddSeconds(1.1d);
 
@@ -376,45 +360,45 @@ namespace Ars
             }
         }
 
-        private bool UpdateTimerByTimeScale()
+        bool UpdateTimerByTimeScale()
         {
             _deltaTime = 1f * Time.deltaTime;
 
-            countdownSeconds -= _deltaTime;
+            _countdownSeconds -= _deltaTime;
 
-            if (countdownSeconds < 0f)
+            if (_countdownSeconds < 0f)
             {
-                if (countdownMinutes > 0f)
+                if (_countdownMinutes > 0f)
                 {
-                    countdownSeconds = 60f;
-                    countdownMinutes--;
+                    _countdownSeconds = 60f;
+                    _countdownMinutes--;
 
-                    if (countdownMinutes < 0f)
+                    if (_countdownMinutes < 0f)
                     {
-                        if (countdownHours > 0f)
+                        if (_countdownHours > 0f)
                         {
-                            countdownMinutes = 60f;
-                            countdownHours--;
+                            _countdownMinutes = 60f;
+                            _countdownHours--;
                         }
                     }
                 }
             }
 
-            var hours = (int)countdownHours;
-            var minutes = (int)countdownMinutes;
-            var seconds = (int)countdownSeconds;
+            var hours = (int)_countdownHours;
+            var minutes = (int)_countdownMinutes;
+            var seconds = (int)_countdownSeconds;
 
-            if (timerType == TimerType.Hours)
+            if (_timerType == TimerType.HOURS)
             {
-                timerText.text = $"{FormatTime(hours)}:{FormatTime(minutes)}:{FormatTime(seconds)}";
+                _timerText.text = $"{FormatTime(hours)}:{FormatTime(minutes)}:{FormatTime(seconds)}";
             }
-            else if (timerType == TimerType.Minutes)
+            else if (_timerType == TimerType.MINUTES)
             {
-                timerText.text = $"{FormatTime(minutes)}:{FormatTime(seconds)}";
+                _timerText.text = $"{FormatTime(minutes)}:{FormatTime(seconds)}";
             }
             else
             {
-                timerText.text = $"{FormatTime(seconds)}";
+                _timerText.text = $"{FormatTime(seconds)}";
             }
 
             UpdateTextStyle();
@@ -422,31 +406,31 @@ namespace Ars
             return minutes > 0 || seconds > 0 || hours > 0;
         }
 
-        private bool UpdateTimer()
+        bool UpdateTimer()
         {
             // Hours 
-            var targetTime = _startTime.AddHours(countdownHours);
+            var targetTime = _startTime.AddHours(_countdownHours);
             // Minutes 
-            targetTime = targetTime.AddMinutes(countdownMinutes);
+            targetTime = targetTime.AddMinutes(_countdownMinutes);
             // Seconds
-            targetTime = targetTime.AddSeconds(countdownSeconds);
+            targetTime = targetTime.AddSeconds(_countdownSeconds);
 
             var now = DateTime.Now.AddSeconds(1d);
             var hours = targetTime.Subtract(now).Hours;
             var minutes = targetTime.Subtract(now).Minutes;
             var seconds = targetTime.Subtract(now).Seconds;
 
-            if (timerType == TimerType.Hours)
+            if (_timerType == TimerType.HOURS)
             {
-                timerText.text = $"{FormatTime(hours)}:{FormatTime(minutes)}:{FormatTime(seconds)}";
+                _timerText.text = $"{FormatTime(hours)}:{FormatTime(minutes)}:{FormatTime(seconds)}";
             }
-            else if (timerType == TimerType.Minutes)
+            else if (_timerType == TimerType.MINUTES)
             {
-                timerText.text = $"{FormatTime(minutes)}:{FormatTime(seconds)}";
+                _timerText.text = $"{FormatTime(minutes)}:{FormatTime(seconds)}";
             }
             else
             {
-                timerText.text = $"{FormatTime(seconds)}";
+                _timerText.text = $"{FormatTime(seconds)}";
             }
 
             UpdateTextStyle();
@@ -456,24 +440,24 @@ namespace Ars
             return canUpdate;
         }
 
-        private void ResumeTimer()
+        void ResumeTimer()
         {
-            timerText.color = defaultColor;
+            _timerText.color = _defaultColor;
             _updateTimer = true;
         }
 
-        private void UpdateTextStyle()
+        void UpdateTextStyle()
         {
-            if (!useLowStyle)
+            if (!_useLowStyle)
             {
                 return;
             }
 
-            if (countdownSeconds <= SecondsToLow && countdownHours <= 0 && countdownMinutes <= 0)
+            if (_countdownSeconds <= SecondsToLow && _countdownHours <= 0 && _countdownMinutes <= 0)
             {
-                timerText.color = lowTimeColor;
+                _timerText.color = _lowTimeColor;
 
-                LowTime?.Invoke((int)countdownSeconds);
+                LowTime?.Invoke((int)_countdownSeconds);
             }
         }
 

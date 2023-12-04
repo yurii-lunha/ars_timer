@@ -1,3 +1,21 @@
 {
-	"name": "Ars.Timer"
+    "name": "Ars.Timer",
+    "references": [
+        "Unity.TextMeshPro"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.textmeshpro",
+            "expression": "2.1.6",
+            "define": "TEXT_MESH_PRO"
+        }
+    ],
+    "noEngineReferences": false
 }
