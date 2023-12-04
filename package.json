@@ -1,6 +1,6 @@
 {
   "name": "com.ylunha.ars-timer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "displayName": "Ars Timer Component",
   "description": "Real time timer",
   "unity": "2020.1",
