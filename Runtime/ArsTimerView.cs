@@ -321,7 +321,7 @@ namespace Ars
             CountdownSeconds = s;
         }
 
-        public void FreezeTime(float freezeDuration, Action onComplete)
+        public void FreezeTime(float freezeDuration, Action onComplete = null)
         {
             _onFreezeComplete = onComplete;
             _freeze = true;
