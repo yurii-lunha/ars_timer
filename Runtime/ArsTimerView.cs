@@ -48,6 +48,11 @@ namespace Ars
 
         TimerData _timerData;
         bool _updateTimer;
+        bool _pauseTimer;
+
+        bool _freeze;
+        Action _onFreezeComplete;
+        float _freezeDuration;
 
         Color TimerTextColor
         {
@@ -145,6 +150,24 @@ namespace Ars
 
         void Update()
         {
+            if (_pauseTimer)
+            {
+                return;
+            }
+
+            if (_freeze)
+            {
+                if (_freezeDuration > 0f)
+                {
+                    _freezeDuration -= 1f * Time.deltaTime;
+                    return;
+                }
+
+                _onFreezeComplete?.Invoke();
+                ResumeTimer();
+                _freeze = false;
+            }
+
             if (!_useTimeScale)
             {
                 return;
@@ -165,6 +188,11 @@ namespace Ars
 
         void FixedUpdate()
         {
+            if (_pauseTimer)
+            {
+                return;
+            }
+
             if (_useTimeScale)
             {
                 return;
@@ -293,17 +321,29 @@ namespace Ars
             CountdownSeconds = s;
         }
 
-        public void FreezeTime(float freezeDuration)
+        public void FreezeTime(float freezeDuration, Action onComplete)
         {
+            _onFreezeComplete = onComplete;
+            _freeze = true;
+            _freezeDuration = freezeDuration;
+
             _updateTimer = false;
             _startTime = _startTime.AddSeconds(freezeDuration);
             TimerTextColor = _freezeColor;
-
-            Invoke(nameof(ResumeTimer), freezeDuration);
         }
 
         public void StopTimer() =>
             _updateTimer = false;
+
+        public void PauseTimer()
+        {
+            _pauseTimer = false;
+        }
+
+        public void UnpauseTimer()
+        {
+            _pauseTimer = true;
+        }
 
         public ArsTimerView RestartTimer(int seconds)
         {
