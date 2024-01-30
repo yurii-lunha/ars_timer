@@ -337,12 +337,12 @@ namespace Ars
 
         public void PauseTimer()
         {
-            _pauseTimer = false;
+            _pauseTimer = true;
         }
 
         public void UnpauseTimer()
         {
-            _pauseTimer = true;
+            _pauseTimer = false;
         }
 
         public ArsTimerView RestartTimer(int seconds)
