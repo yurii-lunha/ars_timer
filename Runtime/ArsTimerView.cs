@@ -332,6 +332,12 @@ namespace Ars
             TimerTextColor = _freezeColor;
         }
 
+        public void UnfreezeTime()
+        {
+            _onFreezeComplete = null;
+            _freezeDuration = 0f;
+        }
+        
         public void StopTimer() =>
             _updateTimer = false;
 
