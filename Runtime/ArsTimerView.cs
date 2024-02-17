@@ -336,6 +336,8 @@ namespace Ars
         {
             _onFreezeComplete = null;
             _freezeDuration = 0f;
+
+            ResumeTimer();
         }
         
         public void StopTimer() =>
@@ -513,7 +515,7 @@ namespace Ars
             return canUpdate;
         }
 
-        void ResumeTimer()
+        public void ResumeTimer()
         {
             TimerTextColor = _defaultColor;
             _updateTimer = true;
