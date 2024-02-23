@@ -374,11 +374,6 @@ namespace Ars
 
         public void PlayTimer()
         {
-            if (_updateTimer)
-            {
-                return;
-            }
-
             if (_realtime)
             {
                 InitTimerData();
